@@ -1,5 +1,15 @@
 # M5 Prefetcher simulation
 
+## Usage
+
+To compile with a given prefetcher, run the command
+
+```sh
+make PREFETCHER=dcpt
+```
+
+This will use the file `prefetcher-dcpt.cc`. Change the value of the PREFETCHER variable to use different prefetchers.
+
 ## Installation
 First, download the modified M5 simulator and SPEC CPU2000 benchmarks suite from https://goo.gl/Jg7oFm (NB! 564 MiB large file). Located on OneDrive and requires NTNU login,
 Software requirements (specific Debian/Ubuntu packages mentioned in paren- theses):

@@ -1,6 +1,21 @@
 # -*- mode:python -*-
+import os
+
+default = 'sequential'
+
+if 'PREFETCHER' not in os.environ:
+    print('$PREFETCHER not set. Using default prefetcher')
+    prefetcher = default
+else:
+    prefetcher = os.environ['PREFETCHER']
+
+file_name = 'prefetcher-%s.cc' % prefetcher
+
+if os.path.isfile('src/'+file_name):
+    raise Exception('Prefetcher source \"%s\" does not exist' % file_name)
+
+print('Using source file %s' % file_name)
 
 # This tells SCons where to find the prefetcher file.
-
 Import('*')
-Source('prefetcher.cc')
+Source(file_name)
