@@ -16,13 +16,16 @@ import lib.stats as stats
 # Uncomment this to print commands instead of executing them.
 #dry_run()
 
+# Set args
+m5_args('-re', '--remote-gdb-port=0', '--trace-flags=HWPrefetch')
 
 # Set paths
-m5_path(homeDir + '/build/ALPHA_SE/m5.opt')
+m5_name = 'm5.%s' % os.environ['M5_SUFFIX']
+m5_path(homeDir + '/build/ALPHA_SE/' + m5_name)
 se_path(frameDir + '/m5/configs/example/se.py')
 
 # Check that M5 is compiled
-if not os.path.exists(homeDir + '/build/ALPHA_SE/m5.opt'):
+if not os.path.exists(homeDir + '/build/ALPHA_SE/' + m5_name):
     print >>sys.stderr, "Could not find the M5 binary, run compile.sh to compile with your prefetcher."
     sys.exit(1)
 print "Remember to recompile after making changes."
