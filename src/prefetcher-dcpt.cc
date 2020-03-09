@@ -8,14 +8,11 @@
 #include "interface.hh"
 #include "circular_buffer.hh"
 
-#define KiB *1024
-#define MiB *1024 KiB
-
 using namespace std;
 
 typedef int32_t Delta;
+typedef std::vector<std::pair<std::pair<Delta, Delta>, size_t> > DeltaPairs;
 
-const size_t PREFETCHER_SIZE = 20 KiB;
 const size_t BUFFER_LENGTH = 10;
 
 struct Entry {
@@ -26,7 +23,7 @@ struct Entry {
 };
 
 const size_t ENTRY_SIZE = 2*sizeof(Addr) + sizeof(uint8_t) + BUFFER_LENGTH*sizeof(Delta);
-const size_t TABLE_LENGTH = PREFETCHER_SIZE / ENTRY_SIZE;
+const size_t TABLE_LENGTH = 100;
 Entry *table;
 
 size_t addr_hash(Addr addr)
@@ -48,7 +45,7 @@ void prefetch_init(void)
 	table[i].buffer.reset(BUFFER_LENGTH);
     }
 
-    DPRINTF(HWPrefetch, "Initialized DCPT prefetcher with table length %u and entry size %u\n", TABLE_LENGTH, ENTRY_SIZE);
+    DPRINTF(HWPrefetch, "Initialized DCPT prefetcher with table length %u and size %u bytes\n", TABLE_LENGTH, TABLE_LENGTH * ENTRY_SIZE);
 }
 
 void prefetch_access(AccessStat stat)
@@ -72,9 +69,9 @@ void prefetch_access(AccessStat stat)
 	    Delta left = entry.buffer[1];
 	    Delta right = delta;
 
-	    std::vector<std::pair<std::pair<Delta, Delta>, size_t> > pairs = entry.buffer.getPairs();
+	    DeltaPairs pairs = entry.buffer.getPairs();
 
-	    for (int i = 0; i < pairs.size(); i++) {
+	    for (int i = 0; i < pairs.size() - 2; i++) {
 		Delta buffer_left = pairs[i].first.first;
 		Delta buffer_right = pairs[i].first.second;
 		size_t index = pairs[i].second;
