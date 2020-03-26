@@ -10,7 +10,7 @@
 	int locked = 0;						// is 1 if the window is locked from increasing. Prevents the window size from oscillating
 	int remaining_accesses = 0;			// the number of remaining accesses in the current window before next prefetching starts
 	int tag_count = 0;					// the amount of requested blocks that were prefetched to calculate the accuracy
-	int max_window = 8;
+	//int max_window = 4;
 	
 void prefetch_init(void)
 {
@@ -64,7 +64,8 @@ void prefetch_access(AccessStat stat)
 		else if(locked)	{								// use locked to prevent window size from increasing right after it has decreased
 			locked = 0;
 		}	
-		else if(window < max_window){
+		//else if(window < max_window)
+		else{
 			// check for upper window size?
 			window++;
 			threshold = window - 1;
@@ -73,14 +74,15 @@ void prefetch_access(AccessStat stat)
 		
 		tag_count = 0; 									// clear the tag count before the new sequence
 		remaining_accesses = window;					// set remaining_accesses
+		Addr pf_addr = curr_addr + BLOCK_SIZE;
 		for (int i = 1; i <= window; i++){
-			if(curr_addr + i >= 0 && curr_addr + i <= MAX_PHYS_MEM_ADDR){
-				if (!in_cache(curr_addr + i * BLOCK_SIZE)) {
-					issue_prefetch(curr_addr + i * BLOCK_SIZE);
-					stat.mem_addr = curr_addr + i * BLOCK_SIZE;
+			pf_addr = curr_addr + i * BLOCK_SIZE;
+			if( pf_addr >= 0 && pf_addr <= MAX_PHYS_MEM_ADDR){
+				if (!in_cache(pf_addr)) {
+					issue_prefetch(pf_addr);
 				}
 			}
-			set_prefetch_bit(curr_addr + 1 * BLOCK_SIZE);
+			set_prefetch_bit(curr_addr + i * BLOCK_SIZE);
 		}
 	}
 	 else{
